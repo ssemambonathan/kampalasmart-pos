@@ -1,0 +1,138 @@
+name: kampalasmart-prod
+
+x-api-build: &api-build
+  context: .
+  dockerfile: apps/api/Dockerfile
+  target: runtime
+
+x-api-environment: &api-environment
+  NODE_ENV: production
+  DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+  JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?JWT_ACCESS_SECRET is required}
+  JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-15m}
+  REFRESH_TOKEN_TTL_DAYS: ${REFRESH_TOKEN_TTL_DAYS:-7}
+  COOKIE_SECURE: ${COOKIE_SECURE:-true}
+  COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
+  WEB_ORIGIN: ${WEB_ORIGIN:?WEB_ORIGIN is required}
+  EMAIL_PROVIDER: ${EMAIL_PROVIDER:-development-outbox}
+  LOGIN_RATE_LIMIT: ${LOGIN_RATE_LIMIT:-8}
+  LOGIN_RATE_WINDOW_SECONDS: ${LOGIN_RATE_WINDOW_SECONDS:-900}
+  TRUST_PROXY: ${TRUST_PROXY:-1}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes', '--maxmemory', '256mb', '--maxmemory-policy', 'allkeys-lru']
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    security_opt:
+      - no-new-privileges:true
+
+  migrate:
+    image: kampalasmart-migrate:local
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: migrate
+    restart: 'no'
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+
+  api:
+    image: kampalasmart-api:local
+    build: *api-build
+    restart: unless-stopped
+    environment: *api-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    expose:
+      - '4000'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:4000/health/ready').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+
+  web:
+    image: kampalasmart-web:local
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        API_INTERNAL_URL: ${API_INTERNAL_URL:-http://api:4000}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      API_INTERNAL_URL: ${API_INTERNAL_URL:-http://api:4000}
+      NEXT_TELEMETRY_DISABLED: '1'
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      # Bind to loopback only. Terminate TLS and proxy to this port from the
+      # host, or change this deliberately if the proxy runs in another network.
+      - '127.0.0.1:${WEB_PORT:-3000}:3000'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/login').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  pgdata:
+  redisdata:

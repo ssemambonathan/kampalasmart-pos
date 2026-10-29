@@ -1,0 +1,26 @@
+{
+  "name": "@kampalasmart/shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "jest --runInBand",
+    "test:unit": "jest --runInBand"
+  },
+  "dependencies": {
+    "decimal.js": "^10.4.3",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "kampalasmart-pos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KampalaSmart POS — offline-first, multi-tenant POS and business management platform",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build:shared": "npm run build -w @kampalasmart/shared",
+    "build": "npm run build:shared && npm run build -w @kampalasmart/api && npm run build -w @kampalasmart/web",
+    "dev": "npm run build:shared && concurrently -k -n api,web -c blue,green \"npm run dev -w @kampalasmart/api\" \"npm run dev -w @kampalasmart/web\"",
+    "typecheck": "npm run build:shared && npm run typecheck -w @kampalasmart/api && npm run typecheck -w @kampalasmart/web",
+    "lint": "eslint .",
+    "format:check": "prettier --check .",
+    "test": "npm run test -w @kampalasmart/shared && npm run test -w @kampalasmart/api",
+    "test:unit": "npm run test:unit -w @kampalasmart/shared && npm run test:unit -w @kampalasmart/api",
+    "test:integration": "npm run test:integration -w @kampalasmart/api",
+    "test:e2e": "npm run test:e2e -w @kampalasmart/web",
+    "db:generate": "npm run db:generate -w @kampalasmart/api",
+    "db:migrate": "npm run db:migrate -w @kampalasmart/api",
+    "db:deploy": "npm run db:deploy -w @kampalasmart/api",
+    "db:seed": "npm run db:seed -w @kampalasmart/api",
+    "db:studio": "npm run db:studio -w @kampalasmart/api",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "eslint": "^9.16.0",
+    "prettier": "^3.4.1",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.17.0"
+  }
+}

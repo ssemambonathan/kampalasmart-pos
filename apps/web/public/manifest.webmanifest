@@ -1,0 +1,46 @@
+{
+  "name": "KampalaSmart Retail OS",
+  "short_name": "KampalaSmart",
+  "description": "Offline-first POS, inventory, purchasing and business insight for African retailers.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f6f8f7",
+  "theme_color": "#147555",
+  "categories": ["business", "finance", "productivity"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New sale",
+      "short_name": "Sell",
+      "url": "/pos",
+      "description": "Open the point of sale"
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "url": "/dashboard",
+      "description": "Today's trading performance"
+    },
+    {
+      "name": "Inventory",
+      "short_name": "Stock",
+      "url": "/inventory",
+      "description": "Check stock levels"
+    }
+  ]
+}
