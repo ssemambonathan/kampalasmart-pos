@@ -515,7 +515,7 @@ export default function DashboardPage() {
       </div>
 
       <p className="mt-4 flex items-center gap-1.5 text-[10px] text-ink-400">
-        <CreditCard className="h-3 w-3" /> Figures use server-confirmed transactions only. Offline sales appear after sync.
+        <CreditCard className="h-3 w-3" /> Figures use's server-confirmed transactions only. Offline sales appear after sync.
       </p>
     </div>
   );
