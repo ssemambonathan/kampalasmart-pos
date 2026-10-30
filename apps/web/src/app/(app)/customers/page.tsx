@@ -125,7 +125,7 @@ export default function CustomersPage() {
 
   const submit = () => {
     setError('');
-    if (!form.name.trim()) return setError('Customer name is required.');
+    if (!form.name.trim()) return setError('Customer's name is required.');
     if (form.email.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim())) return setError('Enter a valid email address or leave it blank.');
     const payload: Record<string, unknown> = {
       name: form.name.trim(),
@@ -397,7 +397,7 @@ export default function CustomersPage() {
                 </div>
               ) : (
                 <p className="rounded-lg border border-dashed border-ink-200 px-3 py-6 text-center text-sm text-ink-500">
-                  This customer has no recorded sales yet.
+                  This customer/client has no recorded sales yet.
                 </p>
               )}
             </div>
