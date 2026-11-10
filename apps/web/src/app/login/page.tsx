@@ -104,7 +104,7 @@ function LoginForm() {
                 Password
               </label>
               <Link href="/forgot-password" className="mb-1.5 text-[11px] font-semibold text-brand-700 hover:text-brand-800">
-                Forgot?
+                FOrgot?
               </Link>
             </div>
             <div className="relative">
