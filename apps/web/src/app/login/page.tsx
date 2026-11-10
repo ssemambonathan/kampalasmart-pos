@@ -108,7 +108,7 @@ function LoginForm() {
               </Link>
             </div>
             <div className="relative">
-              <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
+              <LocKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
